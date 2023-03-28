@@ -3,8 +3,8 @@ title: "JMnorm test run"
 author: "Guanjue Xiang"
 date: "2023-03-31"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -38,12 +38,17 @@ feature_list = c("ATAC", "H3K27ac", "H3K27me3", "H3K36me3", "H3K4me1", "H3K4me3"
 
 # added 1 to avoid 0 in log transformation
 add_sn = 1
+
+# input file names
+refer_sigmat_file = 'ref.raw_sigmat.txt'
+target_sigmat_file = 'TCD8.raw_sigmat.txt'
+after_JMnorm_output_target_sigmat_file = 'TCD8.JMnorm_sigmat.txt'
 ```
 
 Read reference signal matrix
 ```{r}
 # read refe_ave_sigmat
-file_ref = as.data.frame(read_table('ref.raw_sigmat.txt', col_names = F))
+file_ref = as.data.frame(read_table(refer_sigmat_file, col_names = F))
 file_ref_sig0 = file_ref[,-1]
 ```
 
@@ -62,7 +67,7 @@ K = determineK(file_ref_sig0, sample_size=20000, add_sn=add_sn)
 Read target signal matrix
 ```{r}
 # read target signal matrix
-target_ct_rep1_i = as.data.frame(read_table('TCD8.raw_sigmat.txt', col_names = F))
+target_ct_rep1_i = as.data.frame(read_table(target_sigmat_file, col_names = F))
 
 # add noise to avoid many 0s
 target_ct_rep1_i_sig0 = target_ct_rep1_i[,-1]+matrix(runif(prod(dim(target_ct_rep1_i)), min = -0.00001, max = 0.0001), nrow = dim(target_ct_rep1_i)[1])
@@ -101,7 +106,7 @@ colnames(target_ct_rep1_i_sig_JMnorm) = feature_list
 target_ct_rep1_i_sig_JMnorm_linear = 2^(target_ct_rep1_i_sig_JMnorm)-add_sn
 
 # write output JMnorm normalized target signal matrix
-write.table(cbind(target_ct_rep1_i[,1], round(target_ct_rep1_i_sig_JMnorm_linear, 3)), 'TCD8.JMnorm_sigmat.txt', quote=F, col.names=F, row.names = F, sep='\t')
+write.table(cbind(target_ct_rep1_i[,1], round(target_ct_rep1_i_sig_JMnorm_linear, 3)), after_JMnorm_output_target_sigmat_file, quote=F, col.names=F, row.names = F, sep='\t')
 ```
 
 Get cross-feature correlation matrix
